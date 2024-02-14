@@ -393,7 +393,7 @@ void restart()
 	// double tmp = 8 * B * d * m0 * n0 / epsilon2;
 	// l = ceil(d * pow(tmp, d) * log(tmp / delta2));
 	// T = ceil(2 * log(l) / pow(epsilon2, 2));
-	double c = 0.01;
+	double c = 1;
 	// double delta = n0 * pow(delta1 / 8 / pow(2 * n0, T * k), 12 * pow(n0, 2) / c / pow(k, 3));
 	R = c * k * log(n0 / delta1) / pow(epsilon1, 2);
 	threads = ceil(log(n0) / epsilon1);
@@ -516,9 +516,9 @@ void insert_edge(size_t u, size_t v)
 
 int main(int argc, char* argv[])
 {
-	if (argc < 12)
+	if (argc < 8)
 	{
-		cerr << "Usage : ./<executable> <path-to-graph> <k> <d> <B> <epsilon1> <epsilon2> <delta1> <delta2> <l> <T> <path-to-hyperparameters>" << endl;
+		cerr << "Usage : ./<executable> <path-to-graph> <k> <d> <B> <l> <T> <path-to-hyperparameters>" << endl;
 		return EXIT_FAILURE;
 	}
 	srand(time(NULL));
@@ -531,12 +531,12 @@ int main(int argc, char* argv[])
 	k = atoi(argv[2]);
 	d = atoi(argv[3]);
 	B = atoi(argv[4]);
-	epsilon1 = atof(argv[5]);
-	epsilon2 = atof(argv[6]);
-	delta1 = atof(argv[7]);
-	delta2 = atof(argv[8]);
-	l = atoi(argv[9]);
-	T = atoi(argv[10]);
+	epsilon1 = 0.9;
+	epsilon2 = 0.9;
+	delta1 = 0.9;
+	delta2 = 0.9;
+	l = atoi(argv[5]);
+	T = atoi(argv[6]);
 	elapsed = 0;
 	nodes = unordered_set<size_t>();
 	features = unordered_map<size_t,vector<double>>();
@@ -581,11 +581,10 @@ int main(int argc, char* argv[])
 		m0++;
 	}
 	fg.close();
-	ifstream fh(argv[11]);
+	ifstream fh(argv[7]);
 	for (size_t i = 0; i < l; i++)
 		for (size_t j = 0; j < d; j++)
 			fh >> hp[i][j];
-		// generate(hp[i].begin(), hp[i].end(), [](){ return pow(-1, rand() % 2) * B * (double)rand() / RAND_MAX; });
 	fh.close();
 	restart();
 	size_t num = m0 * 2;

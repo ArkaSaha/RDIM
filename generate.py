@@ -13,6 +13,6 @@ with open('data_{}/graph.txt'.format(sys.argv[1]), 'w') as f:
 with open('data_{}/features.txt'.format(sys.argv[1]), 'w') as f:
 	for v in g.nodes:
 		f.write("{}\t".format(v))
-		for n in np.random.uniform(low=-1, high=1, size=int(sys.argv[3])):
+		for n in np.random.uniform(low=-1, high=1, size=int(sys.argv[3])/2):
 			f.write("{} ".format(n))
 		f.write("\n")

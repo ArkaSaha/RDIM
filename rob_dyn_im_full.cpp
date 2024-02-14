@@ -179,79 +179,8 @@ auto greedy_insert(pair<size_t,size_t>& edge, vector<double>& w)
 	}
 	for (size_t j = 0; j < threads; j++)
 		pthread_join(tid[j], NULL);
-	// return make_tuple(max_seeds, max_cover, pos);
 	return distance(score.begin(), max_element(score.begin(), score.end()));
 }
-
-// auto greedy_insert(pair<size_t,size_t>& edge, vector<double>& w)
-// {
-// 	double mst = 0;
-// 	size_t pos = 0, u = edge.first, v = edge.second;
-// 	vector<unordered_set<size_t>> max_seeds = vector<unordered_set<size_t>>(threads);
-// 	vector<vector<unordered_set<size_t>>> max_cover = vector<vector<unordered_set<size_t>>>(threads);
-// 	for (size_t j = 0; j < threads; j++)
-// 	{
-// 		max_seeds[j] = seeds_current[j];
-// 		max_cover[j] = seeds_current_cover[j];
-// 		double score = 0;
-// 		for (size_t i = 0; i < l; i++)
-// 			score += (w[i] * seeds_current_cover[j][i].size());
-// 		if (seeds_current[j].size() < k and seeds_current[j].find(u) == seeds_current[j].end())
-// 		{
-// 			fibonacci_heap<node,compare<compare_node>> heap = fibonacci_heap<node,compare<compare_node>>();
-// 			unordered_map<size_t,handle_t> handles = unordered_map<size_t,handle_t>();
-// 			size_t vertex = u;
-// 			double gain = 0;
-// 			for (auto& e : node_cover[j])
-// 			{
-// 				double g = 0;
-// 				for (auto& f : e.second)
-// 					g += (w[f.first] * f.second.size());
-// 				if (e.first == u)
-// 					gain = g;
-// 				else
-// 					handles[e.first] = heap.push(node(e.first, g));
-// 			}
-// 			while (gain >= (pow(1 + epsilon1, j) - score) / k and max_seeds[j].size() < k)
-// 			{
-// 				max_seeds[j].insert(vertex);
-// 				score += gain;
-// 				handles.erase(vertex);
-// 				if (heap.empty() or max_seeds[j].size() == k)
-// 					break;
-// 				if (node_cover[j].find(vertex) != node_cover[j].end())
-// 				{
-// 					for (auto& e : node_cover[j])
-// 						if (handles.find(e.first) != handles.end())
-// 						{
-// 							double diff = 0;
-// 							for (auto& f : e.second)
-// 							{
-// 								size_t num = 0, i = f.first;
-// 								for (auto& x : f.second)
-// 									if (node_cover[j][vertex].find(i) != node_cover[j][vertex].end() and node_cover[j][vertex][i].find(x) != node_cover[j][vertex][i].end() and max_cover[j][i].find(x) == max_cover[j][i].end())
-// 										num++;
-// 								diff += (w[i] * num);
-// 							}
-// 							heap.update(handles[e.first], node(e.first, (*handles[e.first]).gain - diff));
-// 						}
-// 					for (auto& f : node_cover[j][vertex])
-// 						max_cover[j][f.first].insert(f.second.begin(), f.second.end());
-// 				}
-// 				node nd = heap.top();
-// 				heap.pop();
-// 				vertex = nd.vertex;
-// 				gain = nd.gain;
-// 			}
-// 		}
-// 		if (score > mst)
-// 		{
-// 			mst = score;
-// 			pos = j;
-// 		}
-// 	}
-// 	return make_tuple(max_seeds, max_cover, pos);
-// }
 
 void* insert_edge_cov_helper(void* args)
 {
@@ -331,12 +260,10 @@ void insert_edge_cov(pair<size_t,size_t>& edge)
 	for (size_t j = 0; j < T; j++)
 	{
 		auto res = greedy_insert(edge, w);
-		// seeds[j] = get<0>(res)[get<2>(res)];
 		seeds[j] = max_seeds[res];
 		double s = 0;
 		for (size_t i = 0; i < l; i++)
 		{
-			// sum[i] += get<1>(res)[get<2>(res)].size();
 			sum[i] += max_cover[res].size();
 			double wt = exp(- eta * sum[i]);
 			w[i] = wt;
@@ -348,8 +275,6 @@ void insert_edge_cov(pair<size_t,size_t>& edge)
 		// 	seeds_return.insert(x);
 		if (j == 0)
 		{
-			// seeds_tmp = get<0>(res);
-			// cover_tmp = get<1>(res);
 			seeds_tmp = max_seeds;
 			cover_tmp = max_cover;
 		}
@@ -368,22 +293,6 @@ void insert_edge_cov(pair<size_t,size_t>& edge)
 	}
 	for (size_t j = 0; j < threads; j++)
 		pthread_join(tid[j], NULL);
-	// for (size_t j = 0; j < threads; j++)
-	// {
-	// 	for (auto& e : node_cover[j])
-	// 		for (auto& f : e.second)
-	// 			for (auto& x : seeds_current_cover[j][f.first])
-	// 				f.second.erase(x);
-	// 	for (size_t x : seeds_current[j])
-	// 	{
-	// 		node_cover[j].erase(x);
-	// 		if (seed_threads.find(x) == seed_threads.end())
-	// 			seed_threads[x] = 0;
-	// 		seed_threads[x]++;
-	// 	}
-	// 	if (seeds_current[j].size() < k)
-	// 		num_k--;
-	// }
 }
 
 void* greedy_remove_helper(void* args)
@@ -460,80 +369,8 @@ auto greedy_remove(pair<size_t,size_t>& edge, vector<double>& w)
 	}
 	for (size_t j = 0; j < threads; j++)
 		pthread_join(tid[j], NULL);
-	// return make_tuple(max_seeds, max_cover, pos);
 	return distance(score.begin(), max_element(score.begin(), score.end()));
 }
-
-// auto greedy_remove(pair<size_t,size_t>& edge, vector<double>& w)
-// {
-// 	double mst = 0;
-// 	size_t pos = 0, u = edge.first, v = edge.second;
-// 	vector<unordered_set<size_t>> max_seeds = vector<unordered_set<size_t>>(threads);
-// 	vector<vector<unordered_set<size_t>>> max_cover = vector<vector<unordered_set<size_t>>>(threads);
-// 	for (size_t j = 0; j < threads; j++)
-// 	{
-// 		max_seeds[j] = seeds_current[j];
-// 		max_cover[j] = seeds_current_cover[j];
-// 		double score = 0;
-// 		for (size_t i = 0; i < l; i++)
-// 			score += (w[i] * seeds_current_cover[j][i].size());
-// 		vector<unordered_set<size_t>> freed = vector<unordered_set<size_t>>(l, unordered_set<size_t>());
-// 		if (seeds_current[j].find(u) != seeds_current[j].end())
-// 		{
-// 			double r = 0;
-// 			for (size_t i = 0; i < l; i++)
-// 			{
-// 				unordered_set<size_t> others = unordered_set<size_t>();
-// 				for (size_t x : seeds_current[j])
-// 					if (x != u)
-// 						others.insert(h_cv[i][x].begin(), h_cv[i][x].end());
-// 				for (size_t x : h_cv[i][u])
-// 					if (others.find(x) == others.end())
-// 						freed[i].insert(x);
-// 				r += (w[i] * freed[i].size());
-// 			}
-// 			if (r >= (pow(1 + epsilon1, j) - score) / k)
-// 			{
-// 				max_seeds[j].erase(u);
-// 				for (size_t i = 0; i < l; i++)
-// 					for (size_t x : freed[i])
-// 						max_cover[j][i].erase(x);
-// 				score -= r;
-// 				size_t vertex = n;
-// 				double mg = 0;
-// 				for (auto& e : node_cover[j])
-// 					if (e.first != u)
-// 					{
-// 						double g = 0;
-// 						for (auto& f : e.second)
-// 							g += (w[f.first] * f.second.size());
-// 						for (size_t i = 0; i < l; i++)
-// 							for (size_t x : freed[i])
-// 								if (h_cv[i][e.first].find(x) != h_cv[i][x].end())
-// 									g += w[i];
-// 						if (g >= mg and g >= (pow(1 + epsilon1, j) - score) / k)
-// 						{
-// 							mg = g;
-// 							vertex = e.first;
-// 						}
-// 					}
-// 				if (mg)
-// 				{
-// 					score += mg;
-// 					max_seeds[j].insert(vertex);
-// 					for (auto& f : node_cover[j][vertex])
-// 						max_cover[j][f.first].insert(f.second.begin(), f.second.end());
-// 				}
-// 			}
-// 		}
-// 		if (score > mst)
-// 		{
-// 			mst = score;
-// 			pos = j;
-// 		}
-// 	}
-// 	return make_tuple(max_seeds, max_cover, pos);
-// }
 
 void* remove_edge_cov_helper(void* args)
 {
@@ -632,12 +469,10 @@ void remove_edge_cov(pair<size_t,size_t>& edge)
 	for (size_t j = 0; j < T; j++)
 	{
 		auto res = greedy_remove(edge, w);
-		// seeds[j] = get<0>(res)[get<2>(res)];
 		seeds[j] = max_seeds[res];
 		double s = 0;
 		for (size_t i = 0; i < l; i++)
 		{
-			// sum[i] += get<1>(res)[get<2>(res)].size();
 			sum[i] += max_cover[res].size();
 			double wt = exp(- eta * sum[i]);
 			w[i] = wt;
@@ -649,8 +484,6 @@ void remove_edge_cov(pair<size_t,size_t>& edge)
 		// 	seeds_return.insert(x);
 		if (j == 0)
 		{
-			// seeds_tmp = get<0>(res);
-			// cover_tmp = get<1>(res);
 			seeds_tmp = max_seeds;
 			cover_tmp = max_cover;
 		}
@@ -669,35 +502,6 @@ void remove_edge_cov(pair<size_t,size_t>& edge)
 	}
 	for (size_t j = 0; j < threads; j++)
 		pthread_join(tid[j], NULL);
-	// for (size_t j = 0; j < threads; j++)
-	// {
-	// 	for (auto& e : node_cover[j])
-	// 		for (auto& f : e.second)
-	// 			for (auto& x : seeds_current_cover[j][f.first])
-	// 				f.second.erase(x);
-	// 	for (size_t x : seeds_current[j])
-	// 	{
-	// 		node_cover[j].erase(edge.second);
-	// 		if (seed_threads.find(x) == seed_threads.end())
-	// 			seed_threads[x] = 0;
-	// 		seed_threads[x]++;
-	// 	}
-	// 	for (size_t x : seeds_previous[j])
-	// 		if (seeds_current[j].find(x) == seeds_current[j].end())
-	// 			for (size_t i = 0; i < l; i++)
-	// 				if (h_cv[i].find(x) != h_cv[i].end())
-	// 				{
-	// 					if (node_cover[j].find(x) == node_cover[j].end())
-	// 						node_cover[j][x] = unordered_map<size_t,unordered_set<size_t>>();
-	// 					if (node_cover[j][x].find(i) == node_cover[j][x].end())
-	// 						node_cover[j][x][i] = unordered_set<size_t>();
-	// 					for (size_t y : h_cv[i][x])
-	// 						if (seeds_current_cover[j][i].find(y) == seeds_current_cover[j][i].end())
-	// 							node_cover[j][x][i].insert(y);
-	// 				}
-	// 	if (seeds_current[j].size() < k)
-	// 		num_k--;
-	// }
 }
 
 void* gen_est_helper(void* args)
@@ -1167,17 +971,17 @@ void insert_edge(size_t u, size_t v)
 		pres.clear();
 		timespec begin, end;
 		pthread_mutex_init(&m_lock, NULL);
-		// clock_gettime(CLOCK_MONOTONIC, &begin);
-		// aug_est(u, v);
-		// clock_gettime(CLOCK_MONOTONIC, &end);
-		// elapsed += ((end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) / pow(10, 9));
-		// if (steps_est >= 16 * R * m0 * l)
-		// {
-		// 	n0 = n;
-		// 	m0 = m;
-		// 	restart();
-		// 	return;
-		// }
+		clock_gettime(CLOCK_MONOTONIC, &begin);
+		aug_est(u, v);
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		elapsed += ((end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) / pow(10, 9));
+		if (steps_est >= 16 * R * m0 * l)
+		{
+			n0 = n;
+			m0 = m;
+			restart();
+			return;
+		}
 		clock_gettime(CLOCK_MONOTONIC, &begin);
 		aug_cv(u, v);
 		clock_gettime(CLOCK_MONOTONIC, &end);
@@ -1228,17 +1032,17 @@ void remove_edge(size_t u, size_t v)
 		pres.clear();
 		timespec begin, end;
 		pthread_mutex_init(&m_lock, NULL);
-		// clock_gettime(CLOCK_MONOTONIC, &begin);
-		// dim_est(u, v);
-		// clock_gettime(CLOCK_MONOTONIC, &end);
-		// elapsed += ((end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) / pow(10, 9));
-		// if (steps_est >= 16 * R * m0 * l)
-		// {
-		// 	n0 = n;
-		// 	m0 = m;
-		// 	restart();
-		// 	return;
-		// }
+		clock_gettime(CLOCK_MONOTONIC, &begin);
+		dim_est(u, v);
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		elapsed += ((end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) / pow(10, 9));
+		if (steps_est >= 16 * R * m0 * l)
+		{
+			n0 = n;
+			m0 = m;
+			restart();
+			return;
+		}
 		clock_gettime(CLOCK_MONOTONIC, &begin);
 		dim_cv(u, v);
 		clock_gettime(CLOCK_MONOTONIC, &end);
@@ -1254,9 +1058,9 @@ void remove_edge(size_t u, size_t v)
 
 int main(int argc, char* argv[])
 {
-	if (argc < 12)
+	if (argc < 8)
 	{
-		cerr << "Usage : ./<executable> <path-to-graph> <k> <d> <B> <epsilon1> <epsilon2> <delta1> <delta2> <l> <T> <path-to-hyperparameters>" << endl;
+		cerr << "Usage : ./<executable> <path-to-graph> <k> <d> <B> <l> <T> <path-to-hyperparameters>" << endl;
 		return EXIT_FAILURE;
 	}
 	srand(time(NULL));
@@ -1269,12 +1073,12 @@ int main(int argc, char* argv[])
 	k = atoi(argv[2]);
 	d = atoi(argv[3]);
 	B = atoi(argv[4]);
-	epsilon1 = atof(argv[5]);
-	epsilon2 = atof(argv[6]);
-	delta1 = atof(argv[7]);
-	delta2 = atof(argv[8]);
-	l = atoi(argv[9]);
-	T = atoi(argv[10]);
+	epsilon1 = 0.9;
+	epsilon2 = 0.9;
+	delta1 = 0.9;
+	delta2 = 0.9;
+	l = atoi(argv[5]);
+	T = atoi(argv[6]);
 	elapsed = 0;
 	nodes = unordered_set<size_t>();
 	features = unordered_map<size_t,vector<double>>();
@@ -1327,11 +1131,10 @@ int main(int argc, char* argv[])
 		m0++;
 	}
 	fg.close();
-	ifstream fh(argv[11]);
+	ifstream fh(argv[7]);
 	for (size_t i = 0; i < l; i++)
 		for (size_t j = 0; j < d; j++)
 			fh >> hp[i][j];
-		// generate(hp[i].begin(), hp[i].end(), [](){ return pow(-1, rand() % 2) * B * (double)rand() / RAND_MAX; });
 	fh.close();
 	restart();
 	vector<size_t> vec = vector<size_t>(nodes.begin(), nodes.end());
